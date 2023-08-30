@@ -1,0 +1,2 @@
+# Start one zookeeper and three broker along with UI for Kafka at localhost:8080
+docker compose -f dockerfiles/kafka.base.yml -f dockerfiles/overrides/kafka.two.yml -f dockerfiles/overrides/kafka.three.yml  up --build
