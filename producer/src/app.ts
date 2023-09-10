@@ -13,19 +13,19 @@ const main = async () => {
         topic: "test",
         messages: [
             {
-                key: "m1",
+                // key: "m1",
                 value: "Obj1"
             },
             {
-                key: "m2",
+                // key: "m2",
                 value: "Obj2"
             },
             {
-                key: "m3",
+                // key: "m3",
                 value: "Obj3"
             },
             {
-                key: "m1",
+                // key: "m1",
                 value: "Obj4"
             }
         ]
