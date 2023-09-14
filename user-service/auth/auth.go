@@ -10,27 +10,27 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func Register(userRepository *repositories.UserRepository, username string, password string) (bool, error) {
+func Register(userRepository *repositories.UserRepository, username string, password string) error {
 	_, err := userRepository.GetByUsername(username)
 	if err == nil {
 		fmt.Println("Username already exists")
-		return false, err
+		return errors.New("Username already exists")
 	}
 
 	err = userRepository.AddEntity(&models.User{Username: username, PasswordHash: password})
 	if err != nil {
 		fmt.Println("Error registering user: ", err)
-		return false, err
+		return err
 	}
 
-	return true, nil
+	return nil
 }
 
 func Login(userRepository *repositories.UserRepository, username string, password string) (string, error) {
 	user, err := userRepository.GetByUsername(username)
 	if err != nil {
 		fmt.Println("User not found")
-		return "", err
+		return "", errors.New("username is invalid")
 	}
 	if user.PasswordHash == password {
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -46,5 +46,5 @@ func Login(userRepository *repositories.UserRepository, username string, passwor
 
 		return tokenString, nil
 	}
-	return "", errors.New("Password is invalid")
+	return "", errors.New("password is invalid")
 }

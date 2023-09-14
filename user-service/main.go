@@ -2,38 +2,31 @@ package main
 
 import (
 	"fmt"
-	"user/auth"
-	"user/repositories"
+	"user/api"
+	"user/global"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func main() {
-	fmt.Printf("Hello World\n")
-
-	dsn := "host=127.0.0.1 user=user password=pass dbname=tbd port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	dsn := "host=postgres user=user password=pass dbname=users port=5432 sslmode=disable TimeZone=Asia/Shanghai"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		fmt.Println("Could not connect to  db")
 		return
 	}
+	global.DB = db
 
 	// Close the connection at the end
 	connection, _ := db.DB()
 	defer connection.Close()
 
-	// Initialize the repositories
-	userRepository := repositories.NewUserRepository(db)
-	ratingRepository := repositories.NewRatingRepository(db)
+	app := gin.Default()
 
-	// Ensure the tables exist in the database
-	userRepository.EnsureInitialized()
-	ratingRepository.EnsureInitialized()
+	app.POST("/register", api.RegisterHandler)
+	app.POST("/login", api.LoginHandler)
 
-	auth.Register(userRepository, "Test", "pass")
-
-	fmt.Println(auth.Login(userRepository, "Test", "pass"))
-
-	fmt.Println("Tables Created")
+	app.Run("0.0.0.0:8087")
 }

@@ -11,4 +11,9 @@ services:
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
-      POSTGRES_DB: tbd
+      POSTGRES_DB: users
+
+  user-service:
+    build: ../user-service/
+    ports:
+      - "8087:8087"

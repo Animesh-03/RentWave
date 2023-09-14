@@ -13,6 +13,7 @@ type UserRepository struct {
 func NewUserRepository(db *gorm.DB) *UserRepository {
 	repository := UserRepository{}
 	repository.DB = db
+	repository.EnsureInitialized()
 	return &repository
 }
 

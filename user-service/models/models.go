@@ -19,3 +19,13 @@ type Rating struct {
 	BikeRating  RatingValue `gorm:"embedded"`
 	HotelRating RatingValue `gorm:"embedded"`
 }
+
+type RegisterCredentials struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type LoginCredentials struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
