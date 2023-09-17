@@ -60,6 +60,9 @@ services:
       - 8080:8080
     environment:
       DYNAMIC_CONFIG_ENABLED: 'true'
+      AUTH_TYPE: "LOGIN_FORM"
+      SPRING_SECURITY_USER_NAME: admin
+      SPRING_SECURITY_USER_PASSWORD: pass
 
   postgres:
     image: postgres
@@ -77,3 +80,20 @@ services:
       - "8087:8087"
     depends_on:
       - postgres
+
+  vehicle-service:
+    build:
+      context: ../vehicle-service/
+    environment:
+      NODE_ENV: production
+    ports:
+      - "8088:3000"
+
+  gateway:
+    build: ../gateway/
+    ports:
+      - "8082:8082"
+    environment:
+      USER_SERVICE_URL: "http://user-service:8087"
+    volumes:
+      - ../gateway/src:/gateway/src

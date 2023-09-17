@@ -1,0 +1,1 @@
+export const userServiceBaseUrl = process.env.USER_SERVICE_URL;
