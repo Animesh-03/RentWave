@@ -42,13 +42,16 @@ userRouter.post("/login", async (req, res, next) => {
         else {
             console.log("Error occured: ", err);
             res.status(500).send(err);
-            next();
         }
+        next();
     });
 
     if(loginResponse) {
         // If request is sucessful then set the auth cookie while sending response
-        res.cookie("auth", loginResponse.data.access_token);
+        res.cookie("auth", loginResponse.data.access_token, {
+            // Expire after 24hrs
+            expires: new Date(Date.now() + 24*60*60*1000)
+        });
         res.sendStatus(200);
     }
 

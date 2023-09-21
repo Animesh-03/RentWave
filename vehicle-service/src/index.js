@@ -30,7 +30,7 @@ app.post("/upload_listing", (req, res) => {
   });
 
   new_listing.save();
-  res.end(new_listing._id.toString());
+  res.send(new_listing._id);
 });
 
 app.patch("/toggle_active", async (req, res) => {
@@ -41,7 +41,7 @@ app.patch("/toggle_active", async (req, res) => {
 
 app.get("/active_listings", async (req, res) => {
   const listings = await VehicleListing.find({ active: true });
-  res.end(listings.toString());
+  res.send(listings);
 });
 
 app.listen(port);

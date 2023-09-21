@@ -95,5 +95,6 @@ services:
       - "8082:8082"
     environment:
       USER_SERVICE_URL: "http://user-service:8087"
+      VEHICLE_SERVICE_URL: "http://vehicle-service:3000"
     volumes:
       - ../gateway/src:/gateway/src
