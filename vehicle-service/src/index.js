@@ -30,7 +30,7 @@ app.post("/upload_listing", (req, res) => {
   });
 
   new_listing.save();
-  res.send(new_listing._id);
+  res.end(new_listing._id.toString());
 });
 
 app.patch("/toggle_active", async (req, res) => {
@@ -41,7 +41,12 @@ app.patch("/toggle_active", async (req, res) => {
 
 app.get("/active_listings", async (req, res) => {
   const listings = await VehicleListing.find({ active: true });
-  res.send(listings);
+  res.end(listings.toString());
+});
+
+app.get("/user_listings", async (req, res) => {
+  const listings = await VehicleListing.find({ uid: req.body.uid });
+  res.end(listings.toString());
 });
 
 app.listen(port);
