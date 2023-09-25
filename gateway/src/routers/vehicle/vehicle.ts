@@ -104,7 +104,27 @@ vehicleRouter.patch("/toggle", async (req, res, next) => {
     }
 });
 
+vehicleRouter.get("/me", async (req, res, next) => {
+    let authCookie: jwt.JwtPayload;
+    try {
+        authCookie = jwt.verify(req.cookies.auth, 'secret') as jwt.JwtPayload;
+    }
+    catch(e) {
+        res.status(401).send({
+            "error": "Invalid user credentials"
+        });
+        next();
+        return;
+    }
 
+    const vehicleList = await axios.get(`${vehicleServiceBaseUrl}/user_listings`, {
+        params: {
+            "uid": authCookie.uid
+        }
+    });
+
+    res.send(vehicleList.data)
+})
 
 
 export default vehicleRouter;

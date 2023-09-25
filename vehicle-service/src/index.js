@@ -45,7 +45,7 @@ app.get("/active_listings", async (req, res) => {
 });
 
 app.get("/user_listings", async (req, res) => {
-  const listings = await VehicleListing.find({ uid: req.body.uid });
+  const listings = await VehicleListing.find({ uid: req.query.uid });
   res.end(listings.toString());
 });
 
