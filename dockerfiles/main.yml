@@ -73,6 +73,15 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
       POSTGRES_DB: users
+  postgres1:
+    image: postgres
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: books
 
   user-service:
     build: ../user-service/
@@ -89,6 +98,13 @@ services:
     ports:
       - "8088:3000"
 
+  book-service:
+    build: ../book-service/
+    ports:
+      - "8089:8089"
+    depends_on:
+      - postgres1
+
   gateway:
     build: ../gateway/
     ports:
@@ -96,5 +112,6 @@ services:
     environment:
       USER_SERVICE_URL: "http://user-service:8087"
       VEHICLE_SERVICE_URL: "http://vehicle-service:3000"
+      BOOK_SERVICE_URL: "http://book-service:8089"
     volumes:
       - ../gateway/src:/gateway/src

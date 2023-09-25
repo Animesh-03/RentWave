@@ -4,15 +4,18 @@ import "gorm.io/gorm"
 
 type Book struct {
 	gorm.Model
-	isbn    string `gorm:"unique"`
-	name    string
-	author  string
-	details []BookDetails
+	Isbn    string `gorm:"unique"`
+	Title   string
+	Author  string
+	Details []BookDetails
 }
 
 type BookDetails struct {
 	gorm.Model
-	BookID  uint
-	ownerID uint
-	image   string
+	BookID      uint
+	OwnerID     uint
+	Image       string
+	Active      bool `gorm:"default:true"`
+	Description string
+	Price       uint
 }
