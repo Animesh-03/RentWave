@@ -13,14 +13,13 @@ import (
 )
 
 type BookData struct {
-	ID          uint   `json:"id"`
-	Isbn        string `json:"isbn"`
-	Title       string `json:"title"`
-	Author      string `json:"author"`
-	Image       string `json:"image"`
-	Description string `json:"description"`
-	OwnerID     uint   `json:"ownerid"`
-	Price       uint   `json:"price"`
+	Isbn        string `json:"isbn" binding:"required"`
+	Title       string `json:"title" binding:"required"`
+	Author      string `json:"author" binding:"required"`
+	Image       string `json:"image" binding:"required"`
+	Description string `json:"description" binding:"required"`
+	OwnerID     uint   `json:"ownerid" binding:"required"`
+	Price       uint   `json:"price" binding:"required"`
 }
 
 func AddBookHandler(c *gin.Context) {
@@ -28,6 +27,9 @@ func AddBookHandler(c *gin.Context) {
 	err := c.BindJSON(&bookData)
 	if err != nil {
 		fmt.Println(err)
+		c.IndentedJSON(400, &gin.H{
+			"error": "invalid request body",
+		})
 		return
 	}
 

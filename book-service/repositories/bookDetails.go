@@ -19,7 +19,8 @@ func NewBookDetailsRepository(db *gorm.DB) *BookDetailsRepository {
 
 func (b *BookDetailsRepository) GetUserListings(uid uint) []models.Book {
 	var bookDetails []models.Book
-	b.DB.Debug().Preload("Details", "owner_id = ?", uid).Find(&bookDetails)
+	subQuery := b.DB.Table("book_details").Select("book_id").Where("owner_id = ?", uid)
+	b.DB.Debug().Preload("Details").Where("id in (?)", subQuery).Find(&bookDetails)
 	return bookDetails
 }
 
@@ -37,6 +38,7 @@ func (b *BookDetailsRepository) ToggleListing(id uint) error {
 
 func (b *BookDetailsRepository) GetActiveListings() []models.Book {
 	var bookDetails []models.Book
-	b.DB.Debug().Preload("Details", "active = ?", true).Find(&bookDetails)
+	subQuery := b.DB.Table("book_details").Select("book_id").Where("active = ?", true)
+	b.DB.Debug().Preload("Details").Where("id in (?)", subQuery).Find(&bookDetails)
 	return bookDetails
 }

@@ -1,13 +1,11 @@
 import axios, { AxiosError } from "axios";
 import { Router } from "express";
 import jwt from "jsonwebtoken"
-import { vehicleServiceBaseUrl } from "../../constants";
+import { bookServiceBaseUrl } from "../../constants";
 
-const vehicleRouter = Router();
+const bookRouter = Router();
 
-vehicleRouter.all("/", (req, res) => res.send("Hello World"));
-
-vehicleRouter.post("/add", async (req, res, next) => {
+bookRouter.post("/add", async (req, res, next) => {
     let authCookie: jwt.JwtPayload;
     try {
         authCookie = jwt.verify(req.cookies.auth, 'secret') as jwt.JwtPayload;
@@ -20,13 +18,14 @@ vehicleRouter.post("/add", async (req, res, next) => {
         return;
     }
 
-    const response = await axios.post(`${vehicleServiceBaseUrl}/upload_listing`, {
-        uid: authCookie.uid,
-        name: req.body.name,
-        type: req.body.type,
-        desc: req.body.desc,
-        price: req.body.price,
-        active: req.body.active,
+    const response = await axios.post(`${bookServiceBaseUrl}/add`, {
+        isbn: req.body.isbn,
+        title: req.body.title,
+        author: req.body.author,
+        image: req.body.image,
+        description: req.body.description,
+        ownerid: authCookie.uid,
+        price: req.body.price
     })
     .catch(function (err : Error | AxiosError) {
         // Check for the type of error and handle accordingly
@@ -47,8 +46,8 @@ vehicleRouter.post("/add", async (req, res, next) => {
     }
 });
 
-vehicleRouter.get("/list/active", async (req,res, next) => {
-    const response = await axios.get(`${vehicleServiceBaseUrl}/active_listings`)
+bookRouter.get("/list/active", async (req, res, next) => {
+    const response = await axios.get(`${bookServiceBaseUrl}/active_listings`)
     .catch(function (err : Error | AxiosError) {
         // Check for the type of error and handle accordingly
         if(axios.isAxiosError(err)) {
@@ -68,8 +67,8 @@ vehicleRouter.get("/list/active", async (req,res, next) => {
     }
 });
 
-vehicleRouter.patch("/toggle", async (req, res, next) => {
-    const response = await axios.patch(`${vehicleServiceBaseUrl}/toggle_active`, {
+bookRouter.patch("/toggle", async (req, res, next) => {
+    const response = await axios.patch(`${bookServiceBaseUrl}/toggle_active`, {
         "_id": req.body._id
     })
     .catch(function (err : Error | AxiosError) {
@@ -87,12 +86,11 @@ vehicleRouter.patch("/toggle", async (req, res, next) => {
 
     if(response) 
     {
-        // console.log(response.status)
         res.sendStatus(200);
     }
 });
 
-vehicleRouter.get("/me", async (req, res, next) => {
+bookRouter.get("/me", async (req, res, next) => {
     let authCookie: jwt.JwtPayload;
     try {
         authCookie = jwt.verify(req.cookies.auth, 'secret') as jwt.JwtPayload;
@@ -105,7 +103,7 @@ vehicleRouter.get("/me", async (req, res, next) => {
         return;
     }
 
-    const vehicleList = await axios.get(`${vehicleServiceBaseUrl}/user_listings`, {
+    const vehicleList = await axios.get(`${bookServiceBaseUrl}/user_listings`, {
         params: {
             "uid": authCookie.uid
         }
@@ -114,5 +112,4 @@ vehicleRouter.get("/me", async (req, res, next) => {
     res.send(vehicleList.data)
 });
 
-
-export default vehicleRouter;
+export default bookRouter

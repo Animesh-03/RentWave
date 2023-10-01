@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 
 import userRouter from "./routers/user/user";
 import vehicleRouter from "./routers/vehicle/vehicle";
+import bookRouter from "./routers/book/book";
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(cookieParser());
 
 app.use("/user", userRouter);
 app.use("/vehicle",vehicleRouter);
+app.use("/book", bookRouter)
 
 app.get("/", (_, res) => {
     res.send("Hello World");
