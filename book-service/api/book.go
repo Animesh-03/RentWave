@@ -6,6 +6,7 @@ import (
 	"book/repositories"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -44,12 +45,14 @@ func AddBookHandler(c *gin.Context) {
 			Isbn:   bookData.Isbn,
 			Title:  bookData.Title,
 			Author: bookData.Author,
-			Details: []models.BookDetails{
+			Details: []*models.BookDetails{
 				{
+					BookID:      book.ID,
 					OwnerID:     bookData.OwnerID,
 					Image:       bookData.Image,
 					Description: bookData.Description,
 					Price:       bookData.Price,
+					Active:      true,
 				},
 			},
 		})
@@ -62,18 +65,56 @@ func AddBookHandler(c *gin.Context) {
 			OwnerID:     bookData.OwnerID,
 			Image:       bookData.Image,
 			Description: bookData.Description,
+			Price:       bookData.Price,
+			Active:      true,
 		})
 	}
 
 	c.IndentedJSON(200, "OK")
 }
 
-// func GetUserListings(c *gin.Context) {
-// 	bookDetailsRepository := repositories.NewBookDetailsRepository(global.DB)
-// 	bookDetailsRepository.
+func GetUserListings(c *gin.Context) {
+	uidString, ok := c.GetQuery("uid")
+	if !ok {
+		c.IndentedJSON(400, gin.H{
+			"error": "invalid request body",
+		})
+		return
+	}
+	uid, err := strconv.ParseUint(uidString, 10, 32)
+	if err != nil {
+		c.IndentedJSON(400, gin.H{
+			"error": "invalid request body",
+		})
+		return
+	}
 
-// }
+	bookDetailsRepository := repositories.NewBookDetailsRepository(global.DB)
+	userListings := bookDetailsRepository.GetUserListings(uint(uid))
+	c.IndentedJSON(200, userListings)
+}
 
-func UpdateBookHandler(c *gin.Context) {
+type UpdateBookData struct {
+	ID uint `json:"_id" binding:"required"`
+}
 
+func ToggleListing(c *gin.Context) {
+	var data UpdateBookData
+	err := c.BindJSON(&data)
+	if err != nil {
+		c.IndentedJSON(400, &gin.H{
+			"error": "invalid request body",
+		})
+		return
+	}
+
+	bookDetailsRepository := repositories.NewBookDetailsRepository(global.DB)
+	bookDetailsRepository.ToggleListing(data.ID)
+
+	c.IndentedJSON(200, "OK")
+}
+
+func GetActiveListings(c *gin.Context) {
+	bookDetailsRepository := repositories.NewBookDetailsRepository(global.DB)
+	c.IndentedJSON(200, bookDetailsRepository.GetActiveListings())
 }

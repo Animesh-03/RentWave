@@ -5,6 +5,7 @@ import (
 
 	"book/api"
 	"book/global"
+	"book/repositories"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
@@ -26,9 +27,15 @@ func main() {
 	connection, _ := db.DB()
 	defer connection.Close()
 
+	repositories.NewBookRepository(db).EnsureInitialized()
+	repositories.NewBookDetailsRepository(db).EnsureInitialized()
+
 	app := gin.Default()
 
 	app.POST("/add", api.AddBookHandler)
+	app.GET("/user_listings", api.GetUserListings)
+	app.PATCH("/toggle_active", api.ToggleListing)
+	app.GET("/active_listings", api.GetActiveListings)
 
 	app.Run("0.0.0.0:8089")
 }

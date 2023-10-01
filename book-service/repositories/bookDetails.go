@@ -17,7 +17,26 @@ func NewBookDetailsRepository(db *gorm.DB) *BookDetailsRepository {
 	return &repository
 }
 
-// func (b *BookDetailsRepository) GetUserListings(uid uint) *[]models.Book {
-// 	var book models.Book
-// 	book.Details.
-// }
+func (b *BookDetailsRepository) GetUserListings(uid uint) []models.Book {
+	var bookDetails []models.Book
+	b.DB.Debug().Preload("Details", "owner_id = ?", uid).Find(&bookDetails)
+	return bookDetails
+}
+
+func (b *BookDetailsRepository) ToggleListing(id uint) error {
+	bookDetails, err := b.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	bookDetails.Active = !bookDetails.Active
+	b.DB.Save(bookDetails)
+
+	return nil
+}
+
+func (b *BookDetailsRepository) GetActiveListings() []models.Book {
+	var bookDetails []models.Book
+	b.DB.Debug().Preload("Details", "active = ?", true).Find(&bookDetails)
+	return bookDetails
+}

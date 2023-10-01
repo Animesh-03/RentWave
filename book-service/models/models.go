@@ -7,12 +7,13 @@ type Book struct {
 	Isbn    string `gorm:"unique"`
 	Title   string
 	Author  string
-	Details []BookDetails
+	Details []*BookDetails
 }
 
 type BookDetails struct {
 	gorm.Model
 	BookID      uint
+	Book        *Book
 	OwnerID     uint
 	Image       string
 	Active      bool `gorm:"default:true"`
