@@ -51,7 +51,8 @@ userRouter.post("/login", async (req, res, next) => {
         res.cookie("auth", loginResponse.data.access_token, {
             // Expire after 24hrs
             maxAge: 24*60*60*1000,
-            sameSite: "lax"
+            sameSite: "none",
+            secure: true
         });
         res.sendStatus(200);
     }
