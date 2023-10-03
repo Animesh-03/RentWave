@@ -50,7 +50,8 @@ userRouter.post("/login", async (req, res, next) => {
         // If request is sucessful then set the auth cookie while sending response
         res.cookie("auth", loginResponse.data.access_token, {
             // Expire after 24hrs
-            expires: new Date(Date.now() + 24*60*60*1000)
+            maxAge: 24*60*60*1000,
+            sameSite: "strict"
         });
         res.sendStatus(200);
     }
