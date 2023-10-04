@@ -24,4 +24,4 @@ jobs:
                 script: |
                     cd ~/RentWave
                     git pull
-                    ./run.sh
+                    ./run.sh &
