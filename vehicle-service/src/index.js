@@ -30,23 +30,23 @@ app.post("/upload_listing", (req, res) => {
   });
 
   new_listing.save();
-  res.end(new_listing._id.toString());
+  res.send(new_listing._id.toString());
 });
 
 app.patch("/toggle_active", async (req, res) => {
   const activeness = await VehicleListing.findById(req.body._id).active;
   await VehicleListing.findByIdAndUpdate(req.body._id, { active: !activeness });
-  res.end();
+  res.send();
 });
 
 app.get("/active_listings", async (req, res) => {
   const listings = await VehicleListing.find({ active: true });
-  res.end(listings.toString());
+  res.send(listings);
 });
 
 app.get("/user_listings", async (req, res) => {
   const listings = await VehicleListing.find({ uid: req.query.uid });
-  res.end(listings.toString());
+  res.send(listings);
 });
 
 app.listen(port);
