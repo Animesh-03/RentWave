@@ -1,1 +1,1 @@
-docker compose -f dockerfiles/main.yml up --build
+docker compose -f dockerfiles/main.yml up --build -d
