@@ -75,23 +75,25 @@ Event-Driven Architecture (EDA) is a design concept that helps in decoupling ser
 
 ### Amazon
 
-Amazon is one of the first of the large corporations today to have successfully implemented a microservices pattern with over a few hundred microservices that are currently in use. Amazon started off with a monolithic system in the early 2000's but as the number of developers and traffic on their applications increased development in their system proved to be a challenge as well as scaling up their monolith. As it adopted the microservices way of developing their applications, they soon realised massive improvements in performance and ease in scalability.
+Amazon is one of the first of the large corporations today to have successfully implemented a microservices pattern with over a few hundred microservices that are currently in use. Amazon started off with a monolithic system in the early 2000's but as the number of developers and traffic on their applications increased development in their system proved to be a challenge as well as scaling up their monolith. As it adopted the microservices way of developing their applications, they soon realised massive improvements in performance and ease in scalability.[[3]](#why-and-how-netflix-amazon-and-uber-migrated-to-microservices-learn-from-their-experience)
 
-During the migration each individual functionality was identified and the highly inter-dependent code was separated into small chunks of code that provided with a small and specific function. Once all the individual chunks were identified and separated, they were put together into sections where dependent parts were put together in one section and the ones that are independent were put in other sections. This meant that the code in one section was indepedent of code in the other section so that the developers can work parallely in different sections without introducing breaking changes to the system. In cases where some amount of dependency was unavoidable, the sections introduced interfaces which are the only means through which the services could communicate. This was the beginning of the Service Oriented Architecture that we are familiar with today. 
+
+During the migration each individual functionality was identified and the highly inter-dependent code was separated into small chunks of code that provided with a small and specific function. Once all the individual chunks were identified and separated, they were put together into sections where dependent parts were put together in one section and the ones that are independent were put in other sections. This meant that the code in one section was indepedent of code in the other section so that the developers can work parallely in different sections without introducing breaking changes to the system. In cases where some amount of dependency was unavoidable, the sections introduced interfaces which are the only means through which the services could communicate. This was the beginning of the Service Oriented Architecture that we are familiar with today.[[4]](#what-led-amazon-to-its-own-microservices-architecture)
+
 
 Amazon also started developing the various solutions in regards with the microservices pattern of design like Amazon Web Services (AWS) which boasts over 200 fully working services in regards to various domains of development like data storage, logging services, cloud applications, etc.
 
 ### Netflix
 
-Netflix is another of the instances where migrating to microservices impacted its success today in a major way. Netflix originally started off in 2007 as a DVD distributor when online streaming was not a thing yet. By 2008, it was struggling to keep its services up and a major turning point came when its services went down for three days straight due to a database corruption. This led to them opting to a horizontally scalable database system rather than their existing vertically scaled database where they had no backup and an outage in it could have disastrous outcome.
+Netflix is another of the instances where migrating to microservices impacted its success today in a major way. Netflix originally started off in 2007 as a DVD distributor when online streaming was not a thing yet. By 2008, it was struggling to keep its services up and a major turning point came when its services went down for three days straight due to a database corruption. This led to them opting to a horizontally scalable database system rather than their existing vertically scaled database where they had no backup and an outage in it could have disastrous outcome.[[5](#completing-the-netflix-cloud-migration)]
 
 In 2009, Netflix began designing its microservices architecture and chose AWS as its cloud provider. This migration to cloud also enabled to extend its services to a wider audience as well as improving its reliability and uptime. Netflix claims that the migration to cloud improved its uptime to **four nines**.
-Netflix hit two billion API requests per day to its API Gateway in 2013 and by 2017 it had over 700 microservices functioning on the cloud. Today, Netflix boasts over a 1000 microservices and over 40 milllion users worldwide yet functions smoothly due to its transition to microservices.
+Netflix hit two billion API requests per day to its API Gateway in 2013 and by 2017 it had over 700 microservices functioning on the cloud. Today, Netflix boasts over a 1000 microservices and over 40 milllion users worldwide yet functions smoothly due to its transition to microservices.[[6]](#optimizing-the-netflix-api)
 
 
 ## 4.3 Failed Implementations
 
-### Prime Video Quality Analysis
+### Prime Video Quality Analysis [[7]](#scaling-up-the-prime-video-audiovideo-monitoring-service-and-reducing-costs-by-90)
 
 Amazon's Prime Video is a massive streaming platform worldwide with over 200 million users. The Video Quality Analysis (VQA) team at prime video designed a monitoring tool for liverstreams but was not originally designed for high scalalbility was aimed to monitor a few thousand concurrent livestreams and scale it up gradually over time. However, it realised that the system was not performing well when it started adding more streams to its platform and also noticed the high costs of scaling up its infrastructure to the required standards.
 
@@ -106,7 +108,7 @@ Most organisations do massively benefit from a microservice architecture but thi
 
 Twitter is a massive social media platform with millions of users worldwide which also provides a lot of advertising services as well provides APIs to developers to develop applications making use of it. Twitter's CEO Elon Musk claims that only a mere 20% of microservices in twitter are essential for its functioning while the rest provide little to no functionality or performance improvements.[[8]](#elon-musk-on-twitter)
 
-Wix is another such instance where migrating to microservices proved to be difficult. Wix began its migration to microservices from its monolithic system when they discovered that bugs in one part of the system had the potential to bring down the entire application. They encountered new issues like addressing failures and debugging which were not the case in their monolith system. They had create an entire framework to work with microservices. The employees at Wix also had to face challenges to migrate to microservices from monolith which they were used to which resulted in a culture shift.
+Wix is another such instance where migrating to microservices proved to be difficult. Wix began its migration to microservices from its monolithic system when they discovered that bugs in one part of the system had the potential to bring down the entire application. They encountered new issues like addressing failures and debugging which were not the case in their monolith system. They had create an entire framework to work with microservices. The employees at Wix also had to face challenges to migrate to microservices from monolith which they were used to which resulted in a culture shift. [[9]](#wixcom-migration-to-microservices)
 
 ## 4.4 Summary Of Challenges
 
@@ -130,9 +132,9 @@ The microservices need to be designed with careful thought into each and every a
 
 # 5. RentWave Overview
 
-In a time characterized by our collective pursuit of convenience and adaptability, the **RentWave** project emerges as a groundbreaking platform, poised to reshape the entire landscape of rental services. RentWave functions as an all-encompassing nexus for a wide spectrum of commodities, offering a comprehensive and versatile solution to individuals in search of renting diverse items. These encompass everything from books and vehicles to even spare guest rooms. The project's core objective revolves around the creation of a resilient, full-stack web application, meticulously structured around the principles of microservices. Each microservice, in this innovative approach, employs a distinct technological stack, mirroring the real-world dynamics of contemporary application development.
+In the current age where convenience and adaptability are highly sought after, the RentWave project presents an innovative platform that aims to redefine the rental services landscape. RentWave acts as a comprehensive hub for a wide range of commodities, providing a versatile solution for individuals looking to rent various items, including books, vehicles, and guest rooms. The project's primary goal revolves around developing a robust, full-stack web application built on microservices principles, each utilizing distinct technology stacks to mirror real-world application development.
 
-The cornerstone of this visionary endeavor is the adoption of an event-driven architecture, which introduces an unparalleled level of dynamism and responsiveness. By combining this architectural framework with the utilization of cutting-edge cloud solutions and the implementation of DevOps best practices, RentWave surges forward as a frontrunner in the domain of modern software design. This amalgamation of advanced technologies and forward-thinking methodologies positions RentWave as an industry disruptor, setting new standards for the seamless and adaptable experience that today's consumers demand. In an age when convenience and adaptability reign supreme, RentWave stands as an embodiment of the innovation that propels us towards a future where renting items of all kinds is easier, more efficient, and more accessible than ever before.
+The central aspect of this endeavor is the adoption of an event-driven architecture, enhancing dynamism and responsiveness. By combining this architectural approach with cutting-edge cloud solutions and the implementation of DevOps best practices, RentWave emerges as a frontrunner in modern software design. This integration of advanced technologies and forward-thinking methodologies positions RentWave as an industry influencer, setting new standards for the seamless and adaptable rental experience that today's consumers expect. In an era where convenience and adaptability are key, RentWave signifies the innovative progress towards a future where renting various items becomes more accessible, efficient, and hassle-free.
 
 ## 5.1 Key Challenges Addressed
 
@@ -150,7 +152,7 @@ By utilizing event-driven architecture, RentWave can also scale horizontally to 
 
 ### Development And Deployment Pipeline
 
-The aspect of Deployment and Operations within the RentWave project is a critical element in ensuring the platform's continuous functionality and improvement. To meet this imperative requirement, the RentWave team has harnessed the power of DevOps technologies, specifically leveraging tools such as Docker and GitHub Actions. This strategic adoption of DevOps principles serves not only to streamline the deployment process but also to orchestrate a seamless and efficient operational environment for the platform.
+The aspect of Deployment and Operations within the RentWave project is a critical element in ensuring the platform's continuous functionality and improvement. To meet this imperative requirement, we harnessed the power of DevOps technologies, specifically leveraging tools such as Docker and GitHub Actions. This strategic adoption of DevOps principles serves not only to streamline the deployment process but also to orchestrate a seamless and efficient operational environment for the platform.
 
 A pivotal facet of this endeavor involves the establishment of a robust Continuous Integration and Continuous Deployment (CI/CD) pipeline, which is indispensable in the modern software development landscape. This CI/CD pipeline plays a multifaceted role in RentWave's development ecosystem. It automates the integration of code changes, ensuring that new features, bug fixes, and enhancements are smoothly incorporated into the platform without disruptions or errors.
 
@@ -276,15 +278,17 @@ The frontend for the web application is written using SvelteKit[[18]](#sveltekit
 
 # 8. Conclusion
 
-In a world where convenience and adaptability are paramount, the RentWave project stands as a game-changing platform that aims to transform the rental services industry. At its core, this project harmonizes Microservices (MS) and Event-Driven Architecture (EDA) to reimagine how rentals work.
+In a world where convenience and adaptability are highly valued, the RentWave project aspires to bring significant changes to the rental services industry. This project combines Microservices (MS) and Event-Driven Architecture (EDA) to improve the way rentals work.
 
-Microservices break down complex applications into smaller, independent services that are easy to deploy and manage. In contrast, Event-Driven Architecture enhances real-time responsiveness and system flexibility. However, adopting these technologies comes with challenges, including the intricacies of development, real-time interaction, scalability, and operational reliability.
+Microservices simplify the development and maintenance of applications by breaking them into smaller, manageable services. Event-Driven Architecture enhances real-time responsiveness and flexibility. However, adopting these technologies comes with challenges, including development complexities, real-time interactions, scalability, and operational reliability.
 
-RentWave strategically tackles these challenges. It utilizes microservices to simplify development and maintenance. Each microservice focuses on specific aspects of the platform, making the entire process more manageable. Event-Driven Architecture is the answer to real-time interaction, ensuring users receive immediate updates. It enhances communication between platform components, keeping users informed and connected. This approach offers several technical advantages, including real-time responsiveness, independent component operation, and scalability.
+RentWave addresses these challenges by using microservices to streamline development. Each microservice focuses on specific aspects of the platform. Event-Driven Architecture ensures real-time interaction, improving communication between platform components. This approach offers technical benefits, such as real-time responsiveness, independent component operation, and scalability.
 
-Additionally, RentWave leverages DevOps technologies like Docker and GitHub Actions for deployment and operation. A robust Continuous Integration and Continuous Deployment (CI/CD) pipeline automates code integration and ensures smooth updates.
+RentWave also uses DevOps technologies like Docker and GitHub Actions for efficient deployment and operation. A Continuous Integration and Continuous Deployment (CI/CD) pipeline automates code integration, ensuring smooth updates.
 
-In a comprehensive overview, the RentWave project is set to redefine the rental services landscape by combining these advanced technologies. Users will enjoy a wide array of rentals, from books to vehicles and guest rooms. As the project progresses, it's expected to enrich offerings and push the boundaries of convenience and adaptability in the rental services sector. RentWave is a beacon of innovation, embodying the future of efficient and accessible rentals in the modern era.
+There is a lot more scope in leveraging the strengths of event-driven architecture in the existing system to enable a more robust system and seamless hadnling of requests.
+
+In summary, the RentWave project seeks to enhance the rental services landscape by combining these advanced technologies. Users can enjoy a variety of rentals, from books to vehicles and guest rooms. As the project progresses, it is expected to improve its offerings and expand the boundaries of convenience and adaptability in the rental services sector.
 
 # 9. References
 
