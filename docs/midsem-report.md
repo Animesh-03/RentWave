@@ -19,10 +19,11 @@ In the digital age characterized by a relentless pursuit of convenience and adap
     1. [Key Challenges](#51-key-challenges)
 6. [Design Review](#6-design-review)
     1. [Requirements](#61-requirements)
+    2. [Overview Of Microservices](#62-overview-of-microservices)
+    3. [Detailed Design](#63-detailed-design)
 7. [RentWave Implementation](#7-rentwave-implementation)
 8. [Conclusion](#8-conclusion)
-9. [Appendix](#9-appendix)
-10. [References](#10-references)
+9. [References](#9-references)
 
 # 3. Introduction
 
@@ -176,25 +177,116 @@ RentWave is a web-application that serves to simplify the renting process of var
 - Depolyment must be quick and feasible.
 - Maintain logs for each event for quick and easy resolution of issues.
 
-## 6.2 Overview Of Microservices And Events
+## 6.2 Overview Of Microservices
 
 RentWave makes use of several microservices in order to fulfill its requirements of authentication, notifications, scalability, etc.
 
 The brief overview of the core microservices used is shown below:
 
-![Microservices Overview](./images/MicroServices%20Architecture.png)
+![Microservices Overview](https://github.com/Animesh-03/TBD-Project/blob/master/docs/images/MicroServices%20Architecture.png?raw=true)
 
 The functionalities offered by each of the above mentioned services will be described in detail in the following section.
 
 ## 6.3 Detailed Design
 
+### User Service
+
+This service stores the data related to the user like his address, name, etc. as well as acts as the authentication service by handling the registration and login of users. Upon login, the user is granted an access token that is then used to authenticate the user in the future requests. If the token turns out to be invalid or does not exist then the request fails and the user is denied access to any of the core functionalities of the application.
+
+Below is a brief overview of how the authentication works:
+
+![Authentication Flow](https://github.com/Animesh-03/TBD-Project/blob/master/docs/images/Authentication%20Flow.png?raw=true)
+
+### Book Service
+
+This service handles the users that add new books for rent. This service also handles toggling the availability of books for instances where the owner of the book does not want the book to be rented out. Each book is identified by a unique isbn number. If a user is adding a book whose isbn already exists then that advertisement is linked to that book to make it easier to query multiple advertisements of the same book since the isbn is the same.
+
+This service emits event like `book.add`, `book.update` etc., which are used by other services like logger service to log when the book was added/modified or the notification service to notify users that a new book is available for rent.
+
+### Vehicle Service
+
+This service handles the users that add new vehicles for rent. This service also handles toggling the availability of vehicles for instances where the owner of the vehicle does not want the vehicle to be rented out. Each vehicle is tagged with a type of the vehicle so that the users can query a vehicle specific to their needs like size, seating, boot space, etc.
+
+This service emits event like `vehicle.add`, `vehicle.update` etc., which are used by other services like logger service to log when the vehicle was added/modified or the notification service to notify users that a new vehicle is available for rent.
+
+### Rental Service
+
+The rental service manages the renting process by users who wish to rent out items from the avaialble pool advertisements. This service is used to display the current status of rented items of a user as well as it enforces a penalty on a user if they are late on returning the item.
+
+The rental service will wait for a `rent.complete` event and if the event does not arrive before the agreed upon period of rent expires then it emits a `rent.late` event which will be used to deduct balance automatically from the wallet of the user.
+
+### Kafka Cluster
+
+Kafka Cluster is used as the event broker and serves a central role in the event driven system of RentWave. All the other microservices subscribe to events in the kafka cluster which then sends the events as soon it as receives to the subscribers. There are multiple broker nodes in the cluster to ensure reliability of the events and to make sure that events are not lost completely when a broker node goes down.
+
+### Logger Service
+
+The logger service serves only a single purpose i.e, to log every event that occurs in the application. The logger service is important as this provides timestamped events and logs which help in not only debugging but also to resolve issues that users face while using the application which is an important aspect of user experience in any application.
+
+### API Gateway
+
+The API Gateway is an important aspect of RentWave since it establishes communication between the various microservices in the application. The presence of gateway eliminates the need of every service to know the location of every other service since the gateway is the only service that knows the locations of the other services and all communication is channeled through the gateway.
+
 # 7. RentWave Implementation
+
+RentWave is designed such that the data need not move around services too much which reduces latency, network costs as well as improves security by not exposing data that is not required to accomplish a particular task. This is enabled by an efficient database design.
+
+The ER Diagram below shows the data model in brief:
+
+![ER Diagram](https://github.com/Animesh-03/TBD-Project/blob/master/docs/images/ER%20Diagram.png?raw=true)
+
+## User Service and Book Service
+
+The User Service and Book Service is implemented using golang[[10]](#golang) which is an extremely performant language and is widely used in various backend related services in the software development industry due to its wide support for various tools and libraries.
+
+Peformance is vital in the user service since this is responsible for authentication which becomes extremely important and has high probability to have increased traffic where time of execution becomes the most important factor and also helps in reducing costs.
+
+Golang is also a typesafe language which improves the security of the authentication service and prevents misuse of the APIs. The emerging popularity of the language also ensures that the service will remain maintainable in the future which is a serious problem for companies that use legacy code. The new developers do not have the expertise in the tech stack and this results in an unmaintanable codebase where no issues can be fixed.
+
+Golang has the Gin[[16]](#gin-framework) framework which is used to build the server of these services and maps the handler function to the requests. Golang also provides the GO-ORM[[17]](#gorm) which serves as the ORM(Object Relations Mapper) for the server and the PostgreSQL database.
+
+A PostgreSQL database is used since the schema in these services is relatively rigid and does not need to change throughout the iterations of development process.
+This also helps in vertical scalability of these services since SQL databases are highly vertically scalable as compared to its NoSQL counterparts like MongoDB which are horizontally scalable.
+
+### Authentication
+
+The authentication in RentWave is an access token based implementation. Once a user enters the username and password to register, the password is then hashed using SHA-256[[12]](#sha-256) which is a popular asymmetric hashing algorithm[[11]](#asymmetric-hashing-algorithms) and then sent over to the gateway so that the gateway never receives the actual password itself as well as the password is never sent over the network to prevent MITM[[13]](#mitm-attack) attacks. The database stores the username and the hash of the password.
+
+During login, after the user enters the username and password and presses the login button, the password is hashed and then sent to the gateway which then forwards the request to the user service. The user service fetches the hash of the password that it stored in the database during registration and compares that hash to the one that is provided by the user. If the hashes match then a JWT[[14]](#jwt) is generated where the payload has the user id and timestamp. This token is returned to the gateway which then converts the access token to a cookie by adding an expiration time and sent to the client.
+
+This cookie is then sent along with every other request and is verified before the access to the actual API is given.
+
+## API Gateway And Vehicle Service
+
+The API Gateway and Vehicle Service are written in Typescript[[15]](#typescript) which is a typesafe version of javascript and helps improve development experience as well as time. This is in conjunction with NodeJS which is runtime environment for Javascript and enables running javascript outside of the context of a browser.
+
+Typescript is chosen as the language here because of its compatibility with JSON. Most of the communication between the frontend and even between the microservices happens through HTTP APIs having JSON body as the payload. This enables the gateway to handle the requests from the frontend more efficiently. Since the gateway itself does not handle any business logic, the performance tradeoff is useful in favor of reliability using JSON.
+
+Though the API Gateway itself is stateless and thus does not need a database, the vehicle service uses MongoDB for its storage needs as opposed to an SQL database since the schema for the service is likely to change to due to several factors like change in license policy or even general renting policies. A NoSQL database supports a changing schema more readily than the SQL variants.
+
+## Frontend
+
+The frontend for the web application is written using SvelteKit[[18]](#sveltekit) which is written on top of Svelte[[19]](#svelte), a UI Framework. This is chosen as opposed to the more popular frameworks like NextJS which is built on top of ReactJS and AngularJS due to the following reasons:
+
+- **Performance**: SvelteKit does not work on a virtual DOM like ReactJS or AngularJS and then update the acutal DOM which is significantly slower than working on actual DOM.
+
+- **SEO**: ReactJS works by sending an empty HTML document in its intial request along with some JS which eventually populates the HTML with the content, this is generally fine but for a search engine which indexes pages based on their content. This is disastrous for ReactJS applications since the search engine indexes an empty HTML page with no content as it does not wait for the javascript to do its work.
+
+- **Shifting Trend**: Though ReactJS is still hugely popular, it has been coming under attack due to various reasons which is causing a shift to other frameworks with Svelte being at the forefront of them. This ensures that the tech stack stays relevant in the future and new developers can continue developing new features and maintaining it.
 
 # 8. Conclusion
 
-# 9. Appendix
+In a world where convenience and adaptability are paramount, the RentWave project stands as a game-changing platform that aims to transform the rental services industry. At its core, this project harmonizes Microservices (MS) and Event-Driven Architecture (EDA) to reimagine how rentals work.
 
-# 10. References
+Microservices break down complex applications into smaller, independent services that are easy to deploy and manage. In contrast, Event-Driven Architecture enhances real-time responsiveness and system flexibility. However, adopting these technologies comes with challenges, including the intricacies of development, real-time interaction, scalability, and operational reliability.
+
+RentWave strategically tackles these challenges. It utilizes microservices to simplify development and maintenance. Each microservice focuses on specific aspects of the platform, making the entire process more manageable. Event-Driven Architecture is the answer to real-time interaction, ensuring users receive immediate updates. It enhances communication between platform components, keeping users informed and connected. This approach offers several technical advantages, including real-time responsiveness, independent component operation, and scalability.
+
+Additionally, RentWave leverages DevOps technologies like Docker and GitHub Actions for deployment and operation. A robust Continuous Integration and Continuous Deployment (CI/CD) pipeline automates code integration and ensures smooth updates.
+
+In a comprehensive overview, the RentWave project is set to redefine the rental services landscape by combining these advanced technologies. Users will enjoy a wide array of rentals, from books to vehicles and guest rooms. As the project progresses, it's expected to enrich offerings and push the boundaries of convenience and adaptability in the rental services sector. RentWave is a beacon of innovation, embodying the future of efficient and accessible rentals in the modern era.
+
+# 9. References
 
 1. ##### [What is Microservices Architecture?- Google Cloud](https://cloud.google.com/learn/what-is-microservices-architecture)
 2. ##### [Microservice Scalability Challenges and How to Overcome Them - developer.com](https://www.developer.com/design/microservices-scalability-challenges/)
@@ -205,3 +297,13 @@ The functionalities offered by each of the above mentioned services will be desc
 7. ##### [Scaling up the Prime Video audio/video monitoring service and reducing costs by 90%](https://www.primevideotech.com/video-streaming/scaling-up-the-prime-video-audio-video-monitoring-service-and-reducing-costs-by-90)
 8. ##### [Elon Musk on Twitter](https://twitter.com/elonmusk/status/1592177471654604800)
 9. ##### [Wix.com Migration to Microservices](https://techbeacon.com/app-dev-testing/monolith-microservices-horror-stories-best-practices)
+10. ##### [Golang](https://go.dev)
+11. ##### [Asymmetric Hashing Algorithms](https://www.cryptomathic.com/news-events/blog/differences-between-hash-functions-symmetric-asymmetric-algorithms)
+12. ##### [SHA-256](https://security.stackexchange.com/questions/41431/reason-for-using-asymmetric-encryption-along-with-sha256)
+13. ##### [MITM Attack](https://www.onelogin.com/learn/6-types-password-attacks)
+14. ##### [JWT](https://jwt.io)
+15. ##### [Typescript](https://www.typescriptlang.org/)
+16. ##### [Gin Framework](https://gin-gonic.com/)
+17. ##### [Gorm](https://gorm.io/index.html)
+18. ##### [SvelteKit](https://kit.svelte.dev/)
+19. ##### [Svelte](https://svelte.dev/)
