@@ -22,6 +22,13 @@ type BookData struct {
 	Price       uint   `json:"price" binding:"required"`
 }
 
+func SearchBooks(c *gin.Context) {
+	query := c.Query("query")
+	bookRepository := repositories.NewBookRepository(global.DB)
+	books := bookRepository.GetByName(query)
+	c.IndentedJSON(200, books)
+}
+
 func AddBookHandler(c *gin.Context) {
 	var bookData BookData
 	err := c.BindJSON(&bookData)

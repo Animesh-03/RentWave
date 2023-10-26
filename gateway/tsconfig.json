@@ -3,7 +3,7 @@
 		"target": "es2018",
 		"module": "commonjs",
 		"sourceMap": true,
-		"lib": ["ES2015", "ES2016", "ES2017", "ESNext.AsyncIterable", "ESNext"],
+		"lib": ["ES2015", "ES2016", "ES2017", "ESNext.AsyncIterable", "ESNext", "dom"],
 		"outDir": "./build",
 		"rootDir": ".",
 		"strict": true,

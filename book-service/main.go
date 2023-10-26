@@ -36,6 +36,7 @@ func main() {
 	app.GET("/user_listings", api.GetUserListings)
 	app.PATCH("/toggle_active", api.ToggleListing)
 	app.GET("/active_listings", api.GetActiveListings)
+	app.GET("/book_by_name", api.SearchBooks)
 
 	app.Run("0.0.0.0:8089")
 }
