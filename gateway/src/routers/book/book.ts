@@ -112,4 +112,24 @@ bookRouter.get("/me", async (req, res, next) => {
     res.send(vehicleList.data)
 });
 
+bookRouter.get("/search", async (req, res, next) => {
+    try {
+        const response = await axios.get(`${bookServiceBaseUrl}/search`, {
+            params: req.query
+        });
+        res.send(response.data);
+    }
+    catch(err: unknown) {
+        // Check for the type of error and handle accordingly
+        if(axios.isAxiosError(err)) {
+            // console.log(err);
+            res.status(err.response?.status ?? 500).send(err.response?.data);
+        }
+        else {
+            console.log("Error occured: ", err);
+            res.status(500).send(err);
+        }
+    }
+});
+
 export default bookRouter

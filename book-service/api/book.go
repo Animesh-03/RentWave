@@ -23,10 +23,46 @@ type BookData struct {
 }
 
 func SearchBooks(c *gin.Context) {
-	query := c.Query("query")
-	bookRepository := repositories.NewBookRepository(global.DB)
-	books := bookRepository.GetByName(query)
-	c.IndentedJSON(200, books)
+	query := c.Query("q")
+	minPrice, err := strconv.Atoi(c.DefaultQuery("minPrice", "0"))
+	if err != nil {
+		c.IndentedJSON(400, gin.H{
+			"error": "min price is not an integer",
+		})
+		return
+	}
+
+	maxPrice, err := strconv.Atoi(c.DefaultQuery("maxPrice", "1000000"))
+	if err != nil {
+		c.IndentedJSON(400, gin.H{
+			"error": "max price is not an integer",
+		})
+		return
+	}
+
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "25"))
+	if err != nil {
+		c.IndentedJSON(400, gin.H{
+			"error": "limit is not an integer",
+		})
+		return
+	}
+
+	offset, err := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	if err != nil {
+		c.IndentedJSON(400, gin.H{
+			"error": "offset is not an integer",
+		})
+		return
+	}
+
+	bookDetailsRepository := repositories.NewBookDetailsRepository(global.DB)
+	books, count := bookDetailsRepository.SearchWithPagination(query, minPrice, maxPrice, limit, offset)
+	c.IndentedJSON(200, gin.H{
+		"books": books,
+		"count": count,
+		"next":  int64(offset+limit) < count,
+	})
 }
 
 func AddBookHandler(c *gin.Context) {
@@ -54,7 +90,7 @@ func AddBookHandler(c *gin.Context) {
 			Isbn:   bookData.Isbn,
 			Title:  bookData.Title,
 			Author: bookData.Author,
-			Details: []*models.BookDetails{
+			Details: []models.BookDetails{
 				{
 					BookID:      book.ID,
 					OwnerID:     bookData.OwnerID,
@@ -125,5 +161,7 @@ func ToggleListing(c *gin.Context) {
 
 func GetActiveListings(c *gin.Context) {
 	bookDetailsRepository := repositories.NewBookDetailsRepository(global.DB)
-	c.IndentedJSON(200, bookDetailsRepository.GetActiveListings())
+	c.IndentedJSON(200, gin.H{
+		"books": bookDetailsRepository.GetActiveListings(),
+	})
 }

@@ -36,9 +36,18 @@ func (b *BookDetailsRepository) ToggleListing(id uint) error {
 	return nil
 }
 
-func (b *BookDetailsRepository) GetActiveListings() []models.Book {
-	var bookDetails []models.Book
-	subQuery := b.DB.Table("book_details").Select("book_id").Where("active = ?", true)
-	b.DB.Debug().Preload("Details").Where("id in (?)", subQuery).Find(&bookDetails)
+func (b *BookDetailsRepository) GetActiveListings() []models.BookDetails {
+	var bookDetails []models.BookDetails
+	b.DB.Table("book_details").Preload("Book").Where("active = ?", true).Find(&bookDetails)
 	return bookDetails
+}
+
+func (b *BookDetailsRepository) SearchWithPagination(query string, minPrice, maxPrice, limit, offset int) ([]models.BookDetails, int64) {
+	var count int64
+	var books []models.BookDetails
+
+	subQuery := b.DB.Debug().Table("books").Select("id").Where("LOWER(title) like LOWER(?)", query)
+	b.DB.Debug().Preload("Book").Where("book_id in (?)", subQuery).Where("price >= ? AND price <= ?", minPrice, maxPrice).Limit(limit).Offset(offset).Find(&books)
+	b.DB.Debug().Table("book_details").Where("book_id in (?)", subQuery).Where("price >= ? AND price <= ?", minPrice, maxPrice).Count(&count)
+	return books, count
 }
