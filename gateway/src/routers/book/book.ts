@@ -24,8 +24,8 @@ bookRouter.post("/add", async (req, res, next) => {
         author: req.body.author,
         image: req.body.image,
         description: req.body.description,
-        ownerid: authCookie.uid,
-        price: req.body.price
+        ownerid: Number(authCookie.uid),
+        price: Number(req.body.price),
     })
     .catch(function (err : Error | AxiosError) {
         // Check for the type of error and handle accordingly
@@ -131,5 +131,25 @@ bookRouter.get("/search", async (req, res, next) => {
         }
     }
 });
+
+bookRouter.get("/isbn", async (req, res, next) => {
+    try {
+        const response = await axios.get(`${bookServiceBaseUrl}/isbn`, {
+            params: req.query
+        });
+        res.send(response.data);
+    }
+    catch(err: unknown) {
+        // Check for the type of error and handle accordingly
+        if(axios.isAxiosError(err)) {
+            // console.log(err);
+            res.status(err.response?.status ?? 500).send(err.response?.data);
+        }
+        else {
+            console.log("Error occured: ", err);
+            res.status(500).send(err);
+        }
+    }
+})
 
 export default bookRouter

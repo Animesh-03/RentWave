@@ -165,3 +165,21 @@ func GetActiveListings(c *gin.Context) {
 		"books": bookDetailsRepository.GetActiveListings(),
 	})
 }
+
+func GetBookByIsbn(c *gin.Context) {
+	isbn := c.Query("isbn")
+
+	bookRepository := repositories.NewBookRepository(global.DB)
+	book, err := bookRepository.GetByIsbn(isbn)
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		c.IndentedJSON(200, gin.H{
+			"found": false,
+		})
+		return
+	}
+	c.IndentedJSON(200, gin.H{
+		"found": true,
+		"book":  book,
+	})
+}
