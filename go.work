@@ -1,6 +1,7 @@
-go 1.18
+go 1.21.1
 
 use (
 	./book-service/
 	./user-service/
+	./rental-service/
 )

@@ -1,0 +1,18 @@
+version: '3'
+services:
+  postgres2:
+    image: postgres
+    restart: always
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: rental
+  
+  book-service:
+    build: ../rental-service/
+    ports:
+      - "8083:8083"
+    depends_on:
+      - postgres2

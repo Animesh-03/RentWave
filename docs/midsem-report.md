@@ -14,7 +14,7 @@ In the digital age characterized by a relentless pursuit of convenience and adap
     1. [Literature Review](#41-literature-review)
     2. [Successful Implementations](#42-successful-implementations)
     3. [Failed Implementations](#43-failed-implementations)
-    4. [Summary of Challenges](#44-summary-of-challenges)
+    4. [Summary of Challenges](#45-summary-of-challenges)
 5. [RentWave Overview](#5-rentwave-overview)
     1. [Key Challenges](#51-key-challenges)
 6. [Design Review](#6-design-review)
@@ -110,7 +110,13 @@ Twitter is a massive social media platform with millions of users worldwide whic
 
 Wix is another such instance where migrating to microservices proved to be difficult. Wix began its migration to microservices from its monolithic system when they discovered that bugs in one part of the system had the potential to bring down the entire application. They encountered new issues like addressing failures and debugging which were not the case in their monolith system. They had create an entire framework to work with microservices. The employees at Wix also had to face challenges to migrate to microservices from monolith which they were used to which resulted in a culture shift. [[9]](#wixcom-migration-to-microservices)
 
-## 4.4 Summary Of Challenges
+## 4.4 Event Driven Systems
+
+### Types Of Events
+
+https://blog.frankdejonge.nl/the-different-types-of-events-in-event-driven-systems/
+
+## 4.5 Summary Of Challenges
 
 ### Scalability
 
@@ -266,6 +272,8 @@ Typescript is chosen as the language here because of its compatibility with JSON
 
 Though the API Gateway itself is stateless and thus does not need a database, the vehicle service uses MongoDB for its storage needs as opposed to an SQL database since the schema for the service is likely to change to due to several factors like change in license policy or even general renting policies. A NoSQL database supports a changing schema more readily than the SQL variants.
 
+## Rental Service
+
 ## Frontend
 
 The frontend for the web application is written using SvelteKit[[18]](#sveltekit) which is written on top of Svelte[[19]](#svelte), a UI Framework. This is chosen as opposed to the more popular frameworks like NextJS which is built on top of ReactJS and AngularJS due to the following reasons:
@@ -275,6 +283,16 @@ The frontend for the web application is written using SvelteKit[[18]](#sveltekit
 - **SEO**: ReactJS works by sending an empty HTML document in its intial request along with some JS which eventually populates the HTML with the content, this is generally fine but for a search engine which indexes pages based on their content. This is disastrous for ReactJS applications since the search engine indexes an empty HTML page with no content as it does not wait for the javascript to do its work.
 
 - **Shifting Trend**: Though ReactJS is still hugely popular, it has been coming under attack due to various reasons which is causing a shift to other frameworks with Svelte being at the forefront of them. This ensures that the tech stack stays relevant in the future and new developers can continue developing new features and maintaining it.
+
+## Deployment And DevOps
+
+### NGINX
+
+### Docker
+
+### Cloud Instance
+
+### Domain Managment
 
 # 8. Conclusion
 
@@ -289,6 +307,8 @@ RentWave also uses DevOps technologies like Docker and GitHub Actions for effici
 There is a lot more scope in leveraging the strengths of event-driven architecture in the existing system to enable a more robust system and seamless hadnling of requests.
 
 In summary, the RentWave project seeks to enhance the rental services landscape by combining these advanced technologies. Users can enjoy a variety of rentals, from books to vehicles and guest rooms. As the project progresses, it is expected to improve its offerings and expand the boundaries of convenience and adaptability in the rental services sector.
+
+## Future Work
 
 # 9. References
 
