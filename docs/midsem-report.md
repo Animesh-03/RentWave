@@ -14,7 +14,8 @@ In the digital age characterized by a relentless pursuit of convenience and adap
     1. [Literature Review](#41-literature-review)
     2. [Successful Implementations](#42-successful-implementations)
     3. [Failed Implementations](#43-failed-implementations)
-    4. [Summary of Challenges](#45-summary-of-challenges)
+    4. [Event Driven Systems](#44-event-driven-systems) 
+    5. [Summary of Challenges](#45-summary-of-challenges)
 5. [RentWave Overview](#5-rentwave-overview)
     1. [Key Challenges](#51-key-challenges)
 6. [Design Review](#6-design-review)
@@ -274,6 +275,12 @@ Though the API Gateway itself is stateless and thus does not need a database, th
 
 ## Rental Service
 
+The rental service is the heart of the application which in addition to emitting the core events of the event driven system, it also ensures fast response times to requests as this is estimated to be the most used microservice in the application.
+
+The microservice takes in the type of entity that is being rented and the entity ID along with user ID to interact with the renting aspect of the application. This handles requests pertaining to a user renting an entity, viewing active rentals, past history, etc.
+
+The service emits events when a new entity is being rented which can then be consumed by the corresponding service to process the rental. This service also enforces the rental duration by emittiing events once the agreed upon duration of the rent has passed which can then be processed by deducting currency from the user's wallet automatically.
+
 ## Frontend
 
 The frontend for the web application is written using SvelteKit[[18]](#sveltekit) which is written on top of Svelte[[19]](#svelte), a UI Framework. This is chosen as opposed to the more popular frameworks like NextJS which is built on top of ReactJS and AngularJS due to the following reasons:
@@ -286,17 +293,41 @@ The frontend for the web application is written using SvelteKit[[18]](#sveltekit
 
 ## Deployment And DevOps
 
+DevOps practices emphasize collaboration, communication, and automation between development and operations teams, aiming to streamline the software development lifecycle. It also enables to look ahead on the feasibility of a solution in terms of scalability and testing.
+
+ By automating manual and repetitive tasks, DevOps enhances overall efficiency. Automated testing, deployment, and monitoring reduce the likelihood of human errors, allowing teams to focus on higher-value tasks and innovation rather than time-consuming, error-prone manual processes.
+
+ RentWave uses some of the widely used tools and strategies to ensure a smooth, secure and efficient deployment of the microservices like **nginx**, **docker**, **GitHub Actions**, etc.,
+
 ### NGINX
+
+Nginx is a high-performance web server and reverse proxy server. It serves as a middleman between a user's web browser and the web server hosting a website. Known for its efficiency and speed, Nginx handles tasks like serving static content, managing SSL/TLS connections, and load balancing to distribute incoming web traffic across multiple servers. Its event-driven architecture allows it to handle a large number of simultaneous connections with low resource usage. Nginx is often used to enhance website performance, improve security, and ensure smooth delivery of web content, making it a popular choice for websites with high traffic loads.
+
+RentWave utilises Nginx's capability to forward requests to services on the basis of the origin of the request i.e, the host. The various micro-services from above are hosted on different hosts of the form `*.rentwave.live`. Nginx also upgrades all the incoming http connections to https by forwarding the requests to the corresponding https protocol.
+
+The SSL certificates were generated using `certbot` which is an open source tool which uses `let's encrypt`, a widely recognized certificate authority. These certificates are installed on all the domains the services are hosted on to enable HTTPS traffic.
 
 ### Docker
 
-### Cloud Instance
+Docker is a platform that enables developers to build, package, and distribute applications in lightweight, portable containers. Containers encapsulate everything needed to run an application, including the code, runtime, libraries, and dependencies, making it consistent across different environments. This approach is particularly advantageous for microservices architecture.
 
-### Domain Managment
+Moreover, Docker provides a straightforward and consistent way to scale microservices horizontally. Horizontal scaling involves adding more instances of a microservice to the system to handle increased demand or distribute the workload effectively. With Docker, this process becomes seamless. Developers can easily replicate containers and deploy them across multiple servers or cloud instances. The ability to scale horizontally ensures that microservices can efficiently handle growing user loads or sudden spikes in demand without compromising performance.
+
+In the context of RentWave, each microservice is designed to function independently wherever possible which makes scaling a particular service extremely easy. This can be done by starting the docker instances of all the dependencies of just that service instead of having to scale the entire application even if the load on the other services is minimal.
+
+### Cloud Infrastructure
+
+RentWave is deployed on the oracle cloud which enables leveraging various advantages of cloud. A few of the important factors are listed below:
+
+- **Resource Efficiency**: Microservices often have varying resource requirements. Cloud infrastructure allows dynamic allocation and de-allocation of resources based on the specific needs of each microservice. This ensures efficient utilization of computing resources, minimizing costs and optimizing performance.
+
+- **Fault Tolerance and High Availability**: Cloud providers typically operate in multiple data centers across different geographic regions. This inherent redundancy enhances fault tolerance and ensures high availability for microservices. If one data center experiences issues, traffic can be redirected to another, minimizing downtime.
+
+- **Cost Efficiency**: Cloud services operate on a pay-as-you-go model, allowing organizations to pay only for the resources consumed. This cost-effective approach is well-suited for microservices, where individual components can be scaled independently based on demand, avoiding unnecessary expenses.
+
+- **Global Reach**: Cloud providers have a global network infrastructure, enabling microservices to be deployed close to end-users for reduced latency. This is crucial for applications with a diverse user base, ensuring a consistent and responsive user experience.
 
 # 8. Conclusion
-
-In a world where convenience and adaptability are highly valued, the RentWave project aspires to bring significant changes to the rental services industry. This project combines Microservices (MS) and Event-Driven Architecture (EDA) to improve the way rentals work.
 
 Microservices simplify the development and maintenance of applications by breaking them into smaller, manageable services. Event-Driven Architecture enhances real-time responsiveness and flexibility. However, adopting these technologies comes with challenges, including development complexities, real-time interactions, scalability, and operational reliability.
 
