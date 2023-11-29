@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: pass
       POSTGRES_DB: rental
   
-  book-service:
+  rental-service:
     build: ../rental-service/
     ports:
       - "8083:8083"

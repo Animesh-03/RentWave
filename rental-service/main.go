@@ -35,6 +35,9 @@ func main() {
 	app.POST("/rent", api.RentEntityHandler)
 	app.GET("/list/all", api.GetUserRentalsHandler)
 	app.GET("/list/active", api.GetActiveUserRentalsHandler)
+	app.POST("/rent/complete", api.CompleteRental)
 
 	app.Run("0.0.0.0:8083")
+
+	global.BookEventWriter.Close()
 }

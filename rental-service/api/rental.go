@@ -1,12 +1,16 @@
 package api
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
 	"rental/global"
 	"rental/models"
 	"rental/repositories"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/segmentio/kafka-go"
 )
 
 func HealthCheckHandler(c *gin.Context) {
@@ -27,7 +31,7 @@ func RentEntityHandler(c *gin.Context) {
 
 	if err != nil {
 		c.IndentedJSON(400, &gin.H{
-			"error": "invalid request body",
+			"error": "invalid request body: " + err.Error(),
 		})
 		return
 	}
@@ -37,12 +41,44 @@ func RentEntityHandler(c *gin.Context) {
 	rentalRepository.AddEntity(&models.Rental{
 		Type:     body.Type,
 		EntityID: body.EntityID,
-		Lessor:   body.EntityID,
+		Lessor:   body.Lessor,
 		From:     body.From,
 		To:       body.To,
 	})
 
 	c.IndentedJSON(200, nil)
+
+	bodyBytes, _ := json.Marshal(body)
+
+	message := kafka.Message{
+		Topic: fmt.Sprintf("%s.rented", string(body.Type)),
+		Value: bodyBytes,
+	}
+
+	global.BookEventWriter.WriteMessages(context.Background(), message)
+}
+
+func CompleteRental(c *gin.Context) {
+	var data struct {
+		ID uint `json:"id"`
+	}
+	c.BindJSON(&data)
+
+	rentalRepository := repositories.NewRentalRepository(global.DB)
+
+	rental, _ := rentalRepository.SetStatus(data.ID, models.COMPLETED)
+
+	c.IndentedJSON(200, nil)
+
+	bodyBytes, _ := json.Marshal(rental)
+
+	message := kafka.Message{
+		Topic: fmt.Sprintf("%s.completed", string(rental.Type)),
+		Value: bodyBytes,
+	}
+
+	global.BookEventWriter.WriteMessages(context.Background(), message)
+
 }
 
 func GetUserRentalsHandler(c *gin.Context) {
@@ -57,6 +93,10 @@ func GetUserRentalsHandler(c *gin.Context) {
 
 	rentalRepository := repositories.NewRentalRepository(global.DB)
 	rentals := rentalRepository.GetAllUserRentals(uint(uid))
+
+	if rentals == nil {
+		rentals = make([]*models.Rental, 0)
+	}
 
 	c.IndentedJSON(200, rentals)
 }
@@ -73,6 +113,10 @@ func GetActiveUserRentalsHandler(c *gin.Context) {
 
 	rentalRepository := repositories.NewRentalRepository(global.DB)
 	rentals := rentalRepository.GetActiveUserRentals(uint(uid))
+
+	if rentals == nil {
+		rentals = make([]*models.Rental, 0)
+	}
 
 	c.IndentedJSON(200, rentals)
 }

@@ -9,6 +9,14 @@ const (
 	VEHICLE_RENTAL RentalType = "vehicle"
 )
 
+type RentalStatus string
+
+const (
+	ONGOING   RentalStatus = "ongoing"
+	COMPLETED RentalStatus = "completed"
+	OVERDUE   RentalStatus = "overdue"
+)
+
 type Rental struct {
 	gorm.Model
 	Type     RentalType
@@ -16,4 +24,5 @@ type Rental struct {
 	Lessor   uint
 	From     uint64
 	To       uint64
+	Status   RentalStatus `gorm:"default:ongoing"`
 }

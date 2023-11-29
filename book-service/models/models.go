@@ -17,6 +17,7 @@ type BookDetails struct {
 	OwnerID     uint
 	Image       string
 	Active      bool `gorm:"default:true"`
+	Rented      bool `gorm:"default:false"`
 	Description string
 	Price       uint
 }

@@ -38,7 +38,7 @@ func (b *BookDetailsRepository) ToggleListing(id uint) error {
 
 func (b *BookDetailsRepository) GetActiveListings() []models.BookDetails {
 	var bookDetails []models.BookDetails
-	b.DB.Table("book_details").Preload("Book").Where("active = ?", true).Find(&bookDetails)
+	b.DB.Table("book_details").Preload("Book").Where("active = ? AND rented = ?", true, false).Find(&bookDetails)
 	return bookDetails
 }
 
@@ -48,6 +48,19 @@ func (b *BookDetailsRepository) SearchWithPagination(query string, minPrice, max
 
 	subQuery := b.DB.Debug().Table("books").Select("id").Where("LOWER(title) like LOWER(?)", "%"+query+"%")
 	b.DB.Debug().Preload("Book").Where("book_id in (?)", subQuery).Where("price >= ? AND price <= ?", minPrice, maxPrice).Limit(limit).Offset(offset).Find(&books)
-	b.DB.Debug().Table("book_details").Where("book_id in (?)", subQuery).Where("price >= ? AND price <= ?", minPrice, maxPrice).Count(&count)
+	b.DB.Debug().Table("book_details").Where("book_id in (?)", subQuery).Where("price >= ? AND price <= ?", minPrice, maxPrice).Where("active = ? AND rented = ?", true, false).Count(&count)
 	return books, count
+}
+
+func (b *BookDetailsRepository) SetRented(id uint, value bool) error {
+	book, err := b.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	book.Rented = value
+	b.DB.Save(book)
+
+	return nil
+
 }

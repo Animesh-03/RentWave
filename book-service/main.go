@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"book/api"
+	"book/events"
 	"book/global"
 	"book/repositories"
 
@@ -38,6 +39,8 @@ func main() {
 	app.GET("/active_listings", api.GetActiveListings)
 	app.GET("/search", api.SearchBooks)
 	app.GET("/isbn", api.GetBookByIsbn)
+
+	events.HandleKafkaEvents()
 
 	app.Run("0.0.0.0:8089")
 }
