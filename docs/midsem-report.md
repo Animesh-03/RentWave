@@ -635,29 +635,29 @@ RentWave is an application that assists users in the rental lifecycle of product
 ## Login and Register Pages
 Users can register and login to RentWave.
 
-![Login Page](images/Login.png)
+![Login Page](https://github.com/Animesh-03/RentWave/blob/master/docs/images/Login.png?raw=true)
 
-![Register Page](images/Register.png)
+![Register Page](https://github.com/Animesh-03/RentWave/blob/master/docs/images/Register.png?raw=true)
 
 ## Dashboard
 
 Users can visit the dashboard after logging where they can view the currently available rentals.
 
-![Dashboard](images/Dashboard.png)
+![Dashboard](https://github.com/Animesh-03/RentWave/blob/master/docs/images/Dashboard.png?raw=true)
 
 ## Search and Filters
 
 Users can also search and filter for products they are interested in.
 
-![Search](images/Search.png)
+![Search](https://github.com/Animesh-03/RentWave/blob/master/docs/images/Search.png?raw=true)
 
-![Filter](images/Filter.png)
+![Filter](https://github.com/Animesh-03/RentWave/blob/master/docs/images/Filter.png?raw=true)
 
 ## Adding An Item For Rent
 
 Users can add products to be available for rent by going entering the required details.
 
-![Add For Rent](images/Add%20Book.png)
+![Add For Rent](https://github.com/Animesh-03/RentWave/blob/master/docs/images/Add%20Book.png?raw=true)
 
 
 # 11. References
