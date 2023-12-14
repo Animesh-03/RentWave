@@ -18,13 +18,15 @@ In the digital age characterized by a relentless pursuit of convenience and adap
     5. [Summary of Challenges](#45-summary-of-challenges)
 5. [RentWave Overview](#5-rentwave-overview)
     1. [Key Challenges](#51-key-challenges)
-6. [Design Review](#6-design-review)
+6. [Design Review](#6-design)
     1. [Requirements](#61-requirements)
     2. [Overview Of Microservices](#62-overview-of-microservices)
     3. [Detailed Design](#63-detailed-design)
 7. [RentWave Implementation](#7-rentwave-implementation)
-8. [Conclusion](#8-conclusion)
-9. [References](#9-references)
+8. [Summary](#8-summary)
+9. [Appendix A - Getting Started With Microservices](#9-appendix-a---getting-started-with-microservices)
+10. [Appendix B - RentWave](#10-appendix-b---rentwave)
+11. [References](#11-references)
 
 # 3. Introduction
 
@@ -115,7 +117,17 @@ Wix is another such instance where migrating to microservices proved to be diffi
 
 ### Types Of Events
 
-https://blog.frankdejonge.nl/the-different-types-of-events-in-event-driven-systems/
+#### RESTful Events
+
+These events contain data in the payload that usually represents the data that is received from RESTful APIs. These events are usually used to transfer data to the end users instead of the internal system like other microservices. These events however require additional consideration while designing since an event that is meant for a user is supposed to reach that user only which makes using events less secure for sensitive information.
+
+#### Signal Events
+
+These events contain tiny payloads and are used to "signal" the occurence of an event in a part of the system. These usually only contain the ID(s) of the object that is affected by the event. These events are also highly secure owing to the fact that it exposes very little to no information to the other parts of the system. However, the tiny payload also causes increased latency where more information about an object is needed since it requires additional API calls to the services.
+
+#### Domain Events
+
+These events are used to capture business-relevant events like `OrderPlaced`, `OrderUpdated`, etc. These events are generally more verbose than signal events and thus are also used as a history record. These events can also be used in CQRS patterns in databases where a write event is published when a change occurs in the database which is then consumed by the query counterpart of the database and updates the data accordingly.
 
 ## 4.5 Summary Of Challenges
 
@@ -163,7 +175,7 @@ The aspect of Deployment and Operations within the RentWave project is a critica
 
 A pivotal facet of this endeavor involves the establishment of a robust Continuous Integration and Continuous Deployment (CI/CD) pipeline, which is indispensable in the modern software development landscape. This CI/CD pipeline plays a multifaceted role in RentWave's development ecosystem. It automates the integration of code changes, ensuring that new features, bug fixes, and enhancements are smoothly incorporated into the platform without disruptions or errors.
 
-# 6. Design Review
+# 6. Design
 
 ## 6.1 Requirements
 
@@ -327,21 +339,328 @@ RentWave is deployed on the oracle cloud which enables leveraging various advant
 
 - **Global Reach**: Cloud providers have a global network infrastructure, enabling microservices to be deployed close to end-users for reduced latency. This is crucial for applications with a diverse user base, ensuring a consistent and responsive user experience.
 
-# 8. Conclusion
+# 8. Summary
 
 Microservices simplify the development and maintenance of applications by breaking them into smaller, manageable services. Event-Driven Architecture enhances real-time responsiveness and flexibility. However, adopting these technologies comes with challenges, including development complexities, real-time interactions, scalability, and operational reliability.
 
-RentWave addresses these challenges by using microservices to streamline development. Each microservice focuses on specific aspects of the platform. Event-Driven Architecture ensures real-time interaction, improving communication between platform components. This approach offers technical benefits, such as real-time responsiveness, independent component operation, and scalability.
-
-RentWave also uses DevOps technologies like Docker and GitHub Actions for efficient deployment and operation. A Continuous Integration and Continuous Deployment (CI/CD) pipeline automates code integration, ensuring smooth updates.
-
-There is a lot more scope in leveraging the strengths of event-driven architecture in the existing system to enable a more robust system and seamless hadnling of requests.
-
-In summary, the RentWave project seeks to enhance the rental services landscape by combining these advanced technologies. Users can enjoy a variety of rentals, from books to vehicles and guest rooms. As the project progresses, it is expected to improve its offerings and expand the boundaries of convenience and adaptability in the rental services sector.
+The implementation of RentWave helped in realising the pros and cons of using a microservices architecture along with an event driven system and the challenges that arise when using various tech stacks for each microservice and maintaining consistent data between all the microservices.
 
 ## Future Work
 
-# 9. References
+There is a lot more scope in leveraging the strengths of event-driven architecture in the existing system to enable a more robust system and seamless handling of requests. A significant portion of getting started with a microservices system can be simplified by eliminating the need to write boilerplate code for various purposes like Dockerization, DevOps, service discovery and communication between them.
+
+A tool/framework can be developed to make this part of the development process smoother and easier. This tool can be used to setup a basic microservices system by using something simple like a config file which contains the specifications of the various services needed along with the tech stack that each service would be based on. This however should be not hinder further development by black-boxing major aspects of the system and should remain highly configurable. This tool should also setup a basic deployment pipeline which is again configurable through the config file.
+
+## Conclusion
+
+In conclusion, the adoption of microservices in production environments brings forth a myriad of benefits, including enhanced scalability, fault isolation, and the flexibility to employ diverse technologies. This approach fosters agility and continuous deployment, allowing for faster and more efficient development cycles. However, it is crucial to acknowledge the challenges associated with this paradigm.
+
+Efficient integration of DevOps practices is paramount for managing the complexity introduced by microservices. Additionally, handling data management and migration, orchestrating service communication using event-driven architecture, and ensuring effective service discovery and load balancing pose significant challenges. Security and governance, along with the intricacies of monitoring, tracing, and testing in a multi-service environment, require meticulous attention.
+
+Successfully navigating these challenges demands a holistic approach, incorporating robust DevOps collaboration, meticulous data management strategies, and thoughtful implementation of event-driven communication. Moreover, addressing security concerns and establishing comprehensive monitoring and testing practices are essential components of a successful microservices implementation. In essence, while the benefits are substantial, embracing microservices in production necessitates a strategic and comprehensive approach to build resilient, scalable, and efficient systems.
+
+# 9. Appendix A - Getting Started With Microservices
+
+Microservices in simple terms are just multiple servers that communicate with each other using APIs and serve purposes that the end user needs. Each microservice can use their own tech stack and database but must expose APIs.
+
+To demonstrate a simple microservice application, let us consider an API Gateway service whose sole purpose is to process requests from the users and convert the data recieved into the format that other services can consume using their own APIs. Let the other microservice in this case be a simple user authentication service using [JWTs](#jwt).
+
+## User Auth Service
+
+Let the User Authentication service use the following tech-stack:
+- Golang
+- GIN
+- GORM
+- Postgres
+
+The detailed documentation and how to use them in the project can be found in the references.
+
+To create a new Golang project run `go mod init user-service` and install the above dependencies.
+
+Setup the connection between the database and the auth service using `GORM`:
+```go
+dsn := "host=postgres user=user password=pass dbname=users port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+if err != nil {
+    fmt.Println("Could not connect to  db")
+    return
+}
+
+// Close the connection at the end
+connection, _ := db.DB()
+defer connection.Close()
+```
+
+Now initialize the `gin` server by listening to a port:
+```go
+app := gin.Default()
+
+app.POST("/register", RegisterHandler)
+app.POST("/login", LoginHandler)
+
+app.Run("0.0.0.0:8087")
+```
+
+Create the user model:
+```go
+type User struct {
+	gorm.Model
+	Username     string `gorm:"unique"`
+	PasswordHash string
+}
+```
+Create two functions i.e, `RegisterHandler` and `LoginHandler` which are called when the `register` and `login` endpoints are called respectively.
+
+```go
+func RegisterHandler(c *gin.Context) {
+	var registerCredentials models.RegisterCredentials
+	userRepository := repositories.NewUserRepository(global.DB)
+
+	if err := c.BindJSON(&registerCredentials); err != nil {
+		fmt.Println("Invalid Request Body: ", err)
+		c.IndentedJSON(403, gin.H{
+			"error": "Invalid Request Body",
+		})
+		return
+	}
+
+	err := auth.Register(userRepository, registerCredentials.Username, registerCredentials.Password)
+	if err != nil {
+		fmt.Println("Error registering user: ", err)
+		c.IndentedJSON(500, gin.H{
+			"error": "Username already exists",
+		})
+		return
+	}
+
+	c.IndentedJSON(200, "OK")
+}
+
+func LoginHandler(c *gin.Context) {
+	var loginCredentials models.LoginCredentials
+	userRepository := repositories.NewUserRepository(global.DB)
+
+	if err := c.BindJSON(&loginCredentials); err != nil {
+		fmt.Println("Invalid Request Body: ", err)
+		c.IndentedJSON(403, gin.H{
+			"error": "Invalid Request Body",
+		})
+		return
+	}
+
+	token, err := auth.Login(userRepository, loginCredentials.Username, loginCredentials.Password)
+	if err != nil {
+		c.IndentedJSON(401, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.IndentedJSON(200, gin.H{
+		"access_token": token,
+	})
+}
+```
+
+Note that the `auth` and `repository` packages are simple wrappers around `gorm`. To learn more about these packages feel free to visit the [GitHub Repository](https://github.com/Animesh-03/RentWave).
+
+Finally dockerize the go application by creating a `Dockerfile`:
+```Dockerfile
+FROM golang:1.19
+
+WORKDIR /usr/local/go/src/user
+
+COPY go.mod .
+COPY go.sum .
+
+RUN go mod download
+
+COPY . .
+
+CMD ["go", "run", "main.go"]
+```
+
+## API Gateway
+
+Now create NodeJS application for the API Gateway that uses the following tech-stack:
+- Typescript
+- ExpressJS
+- jsonwebtoken
+
+To begin with initialize an express server by listening on a port:
+```ts
+import express from "express";
+
+const app = express();
+
+app.use(express.json());
+
+app.get("/", (_, res) => {
+    res.send("Hello World");
+});
+
+app.listen(8082, () => console.log("Started API Gateway on PORT 8082"));
+```
+
+Ideally the gateway would be handling requests to various services and thus to better organize the code, make use of express routers to modularize the endpoints and handlers. Create a new folder called `routers` and create a file called `auth.ts`.
+```ts
+// auth.ts
+
+import { Router } from "express";
+import axios, { AxiosError } from "axios";
+
+const userRouter = Router();
+
+userRouter.post("/register", async (req, res, next) => {
+    // Redirect to User Service
+    const registerResponse = await axios.post(`${process.env.USER_SERVICE_URL}/register`, {
+        "username": req.body.username,
+        "password": req.body.password
+    })
+    .catch(function (err : Error | AxiosError) {
+        // Check for the type of error and handle accordingly
+        if(axios.isAxiosError(err)) {
+            res.status(err.response?.status ?? 500).send(err.response?.data);
+            next();
+        }
+        else {
+            console.log("Error occured: ", err);
+            res.status(500).send(err);
+            next();
+        }
+    })
+
+
+    if(registerResponse)
+        res.sendStatus(200);
+});
+
+userRouter.post("/login", async (req, res, next) => {
+    // Redirect to User Service
+    const loginResponse = await axios.post(`${process.env.USER_SERVICE_URL}/login`, {
+        "username": req.body.username,
+        "password": req.body.password
+    })
+    .catch(function (err : Error | AxiosError) {
+        // Check for the type of error and handle accordingly
+        if(axios.isAxiosError(err)) {
+            res.status(err.response?.status ?? 500).send(err.response?.data);
+        }
+        else {
+            console.log("Error occured: ", err);
+            res.status(500).send(err);
+        }
+        next();
+    });
+
+    if(loginResponse) {
+        // If request is sucessful then set the auth cookie while sending response
+        res.cookie("auth", loginResponse.data.access_token, {
+            // Expire after 24hrs
+            maxAge: 24*60*60*1000,
+            sameSite: "none",
+            secure: true
+        });
+        res.sendStatus(200);
+    }
+
+});
+```
+
+The user router handles the requests to the `register` and `login` endpoints and returns the response from the auth service which is then returned back to the user.
+
+Now use the user router:
+```ts
+//app.ts
+
+app.use("/user", userRouter);
+
+// If we have another microservice to handle orders
+app.use("/order", orderRouter);
+```
+
+Now dockerize the gateway by creating a Dockerfile:
+```Dockerfile
+FROM node:alpine
+
+WORKDIR /gateway
+
+COPY ./package.json ./
+RUN yarn install
+
+COPY . .
+
+CMD ["yarn", "dev"]
+```
+
+## Microservices Docker Compose
+
+Finally use docker compose to startup all the microservices and their dependencies:
+```yml
+version: '3.1'
+
+services:
+
+    gateway:
+    build: ../gateway/
+    ports:
+        - "8082:8082"
+    environment:
+        USER_SERVICE_URL: "http://user-service:8087"
+    volumes:
+        - ../gateway/src:/gateway/src
+
+    postgres:
+        image: postgres
+        restart: always
+        ports:
+        - "5432:5432"
+        environment:
+        POSTGRES_USER: user
+        POSTGRES_PASSWORD: pass
+        POSTGRES_DB: users
+
+    user-service:
+        build: ../user-service/
+        ports:
+        - "8087:8087"
+```
+
+The microservices application can be run by the command `docker compose up --build`.
+
+# 10. Appendix B - RentWave
+
+RentWave is an application that assists users in the rental lifecycle of products like books and vehicles.
+
+## Login and Register Pages
+Users can register and login to RentWave.
+
+![Login Page](images/Login.png)
+
+![Register Page](images/Register.png)
+
+## Dashboard
+
+Users can visit the dashboard after logging where they can view the currently available rentals.
+
+![Dashboard](images/Dashboard.png)
+
+## Search and Filters
+
+Users can also search and filter for products they are interested in.
+
+![Search](images/Search.png)
+
+![Filter](images/Filter.png)
+
+## Adding An Item For Rent
+
+Users can add products to be available for rent by going entering the required details.
+
+![Add For Rent](images/Add%20Book.png)
+
+
+# 11. References
 
 1. ##### [What is Microservices Architecture?- Google Cloud](https://cloud.google.com/learn/what-is-microservices-architecture)
 2. ##### [Microservice Scalability Challenges and How to Overcome Them - developer.com](https://www.developer.com/design/microservices-scalability-challenges/)
@@ -362,3 +681,4 @@ In summary, the RentWave project seeks to enhance the rental services landscape 
 17. ##### [Gorm](https://gorm.io/index.html)
 18. ##### [SvelteKit](https://kit.svelte.dev/)
 19. ##### [Svelte](https://svelte.dev/)
+20. ##### [Types Of Events](https://blog.frankdejonge.nl/the-different-types-of-events-in-event-driven-systems)
